@@ -6,12 +6,12 @@ from pywebio.session import register_thread
 import threading
 import meraki_tools.meraki_ui as meraki_ui
 import os
+import about
 
 # Import the new class-based modules
-from project_logic import ProjectLogic
+
 from project_ui import ProjectUI
 
-UI=meraki_ui.PyWebIOApp()
 # Initialize logger with console output enabled for debugging and monitoring.
 logger = setup_logger(enable_logging=True, console_logging=True, file_logging=True)
 required_app_setup_param = {"api_key": True, "organization_id": True, "network_id": False}
@@ -20,7 +20,7 @@ required_app_setup_param = {"api_key": True, "organization_id": True, "network_i
 app_setup_param = {"api_key": os.getenv("MK_CSM_KEY"), "organization_id": "1234"}
 
 app_scope_name = "app"
-
+UI=meraki_ui.PyWebIOApp(app_scope_name,about.APP_INFO)
 
 def app():
     """
@@ -33,11 +33,11 @@ def app():
         t = threading.Thread(target=UI.update_log_display)
         register_thread(t)
 
-        UI.render_header("Meraki Local DNS Manager") # Assuming APP_INFO is now handled within meraki_ui or passed differently
+        UI.render_header() # Assuming APP_INFO is now handled within meraki_ui or passed differently
         t.start()  # Start the log update thread.
 
         # Call app_setup and get the API_Utils object
-        api_utils = UI.app_setup(app_scope_name, required_app_setup_param, app_setup_param=app_setup_param)
+        api_utils = UI.app_setup(required_app_setup_param, app_setup_param=app_setup_param)
 
         if api_utils is None:
             # Handle setup failure (e.g., API key missing, organization not found)
@@ -45,12 +45,8 @@ def app():
             toast("Application setup failed. Please check configurations.", color="error", duration=0)
             return # Use return instead of exit(1) in PyWebIO app context
 
-        # --- New: Instantiate ProjectLogic and ProjectUI ---
-        # 1. Instantiate the ProjectLogic class, injecting the api_utils instance
-        project_logic_instance = ProjectLogic(api_utils)
-
         # 2. Instantiate the ProjectUI class, injecting both api_utils and the project_logic_instance
-        project_ui_instance = ProjectUI(api_utils, project_logic_instance)
+        project_ui_instance = ProjectUI(api_utils,app_scope_name)
 
         # 3. Start the application by calling the main menu method on the ProjectUI instance
         project_ui_instance.app_main_menu()
