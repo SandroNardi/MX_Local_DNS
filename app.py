@@ -11,7 +11,7 @@ import os
 from project_logic import ProjectLogic
 from project_ui import ProjectUI
 
-
+UI=meraki_ui.PyWebIOApp()
 # Initialize logger with console output enabled for debugging and monitoring.
 logger = setup_logger(enable_logging=True, console_logging=True, file_logging=True)
 required_app_setup_param = {"api_key": True, "organization_id": True, "network_id": False}
@@ -30,14 +30,14 @@ def app():
     logger.info("Starting PyWebIO application.")
     try:
         # Create and register a background thread to update the log display in the UI.
-        t = threading.Thread(target=meraki_ui.update_log_display)
+        t = threading.Thread(target=UI.update_log_display)
         register_thread(t)
 
-        meraki_ui.render_header("Meraki Local DNS Manager") # Assuming APP_INFO is now handled within meraki_ui or passed differently
+        UI.render_header("Meraki Local DNS Manager") # Assuming APP_INFO is now handled within meraki_ui or passed differently
         t.start()  # Start the log update thread.
 
         # Call app_setup and get the API_Utils object
-        api_utils = meraki_ui.app_setup(app_scope_name, required_app_setup_param, app_setup_param=app_setup_param)
+        api_utils = UI.app_setup(app_scope_name, required_app_setup_param, app_setup_param=app_setup_param)
 
         if api_utils is None:
             # Handle setup failure (e.g., API key missing, organization not found)
@@ -68,6 +68,6 @@ if __name__ == "__main__":
     """
     logger.info("Application script started.")
     # Apply custom CSS styles from the wrapper module for UI customization.
-    config(css_style=meraki_ui.get_css_style())
+    config(css_style=UI.get_css_style())
     # Start PyWebIO server on port 8080 with debug enabled for development.
     start_server(app, port=8080, debug=True)

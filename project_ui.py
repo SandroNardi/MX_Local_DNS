@@ -2,11 +2,11 @@
 # project_ui.py
 from pywebio.output import put_markdown, put_buttons, use_scope, toast, put_datatable, put_table
 from pywebio.input import input_group, input, select, actions, input as pywebio_input
-from meraki_tools.my_logging import setup_logger
+from meraki_tools.my_logging import get_logger
 from project_logic import ProjectLogic # Import the new ProjectLogic class
 from meraki_tools.meraki_api_utils import MerakiAPIWrapper 
 
-logger = setup_logger(enable_logging=True, console_logging=True, file_logging=True)
+logger = get_logger()
 
 class ProjectUI:
     def __init__(self, api_utils:MerakiAPIWrapper, project_logic_instance: ProjectLogic):

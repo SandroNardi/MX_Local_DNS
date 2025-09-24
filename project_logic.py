@@ -4,12 +4,13 @@ import os
 import meraki
 import json
 import requests
-from meraki_tools.my_logging import setup_logger
+from meraki_tools.my_logging import get_logger
+from meraki_tools.meraki_api_utils import MerakiAPIWrapper
 
-logger = setup_logger(enable_logging=True, console_logging=True, file_logging=True)
+logger = get_logger()
 
 class ProjectLogic:
-    def __init__(self, api_utils):
+    def __init__(self, api_utils: MerakiAPIWrapper):
         """
         Initializes the ProjectLogic class with an API_Utils instance.
         This instance will be used for all API interactions within this class.
