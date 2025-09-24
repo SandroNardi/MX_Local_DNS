@@ -1,3 +1,4 @@
+# type: ignore
 import os
 import meraki
 from .my_logging import get_logger

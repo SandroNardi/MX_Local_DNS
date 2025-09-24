@@ -1,3 +1,4 @@
+# type: ignore
 from pywebio.output import put_html, put_buttons, put_scope, use_scope, put_text, put_collapse, put_scrollable, toast, popup
 from pywebio.session import download, run_js
 from pywebio.input import input_group, select, input as pywebio_input
@@ -56,35 +57,41 @@ class PyWebIOApp:
                         return None
 
                 organizations = None
-                if required_app_setup_param.get("organization_id") and not self.meraki_api_utils.is_organization_id_set():
-                    self.logger.info("Organization ID required and not set. Retrieving organizations.")
-                    organizations = self.retrieve_organizations()
-                    if organizations is None:
-                        return None
-                    org_id_param = app_setup_param.get("organization_id") if app_setup_param else None
-                    selected_org_id, _ = self.select_organization(org_id_param, organizations)
-                    if selected_org_id is None:
-                        return None
-                elif required_app_setup_param.get("organization_id") and self.meraki_api_utils.is_organization_id_set():
-                    self.logger.info(f"Organization ID already set: {self.meraki_api_utils.get_organization_id()}.")
+                if required_app_setup_param.get("organization_id"): # Check if organization_id is required
+                    self.logger.info("Organization ID required. Retrieving organizations.")
                     organizations = self.retrieve_organizations()
                     if organizations is None:
                         return None
 
+                    # Determine the organization ID to check: prioritize from app_setup_param, then current set ID
+                    org_id_to_validate = app_setup_param.get("organization_id") if app_setup_param else None
+                    if org_id_to_validate is None and self.meraki_api_utils.is_organization_id_set():
+                        org_id_to_validate = self.meraki_api_utils.get_organization_id()
+                        self.logger.info(f"Organization ID already set: {org_id_to_validate}. Re-validating.")
+                    elif org_id_to_validate:
+                        self.logger.info(f"Organization ID provided in app_setup_param: {org_id_to_validate}.")
+
+                    selected_org_id, _ = self.select_organization(org_id_to_validate, organizations)
+                    if selected_org_id is None:
+                        return None
+
                 networks = None
-                if required_app_setup_param.get("network_id") and not self.meraki_api_utils.is_network_id_set():
-                    self.logger.info("Network ID required and not set. Retrieving networks.")
+                if required_app_setup_param.get("network_id"): # Check if network_id is required
+                    self.logger.info("Network ID required. Retrieving networks.")
                     networks = self.retrieve_networks()
                     if networks is None:
                         return None
-                    net_id_param = app_setup_param.get("network_id") if app_setup_param else None
-                    selected_net_id, _ = self.select_network(net_id_param, networks)
+
+                    # Determine the network ID to check: prioritize from app_setup_param, then current set ID
+                    net_id_to_validate = app_setup_param.get("network_id") if app_setup_param else None
+                    if net_id_to_validate is None and self.meraki_api_utils.is_network_id_set():
+                        net_id_to_validate = self.meraki_api_utils.get_network_id()
+                        self.logger.info(f"Network ID already set: {net_id_to_validate}. Re-validating.")
+                    elif net_id_to_validate:
+                        self.logger.info(f"Network ID provided in app_setup_param: {net_id_to_validate}.")
+
+                    selected_net_id, _ = self.select_network(net_id_to_validate, networks)
                     if selected_net_id is None:
-                        return None
-                elif required_app_setup_param.get("network_id") and self.meraki_api_utils.is_network_id_set():
-                    self.logger.info(f"Network ID already set: {self.meraki_api_utils.get_network_id()}.")
-                    networks = self.retrieve_networks()
-                    if networks is None:
                         return None
 
                 all_set, missing = self.meraki_api_utils.check_current_parameters_status()
