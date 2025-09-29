@@ -6,8 +6,8 @@ APP_INFO = {
     "author": "SandroN",
     "version": "1.0.0",
     "links": {
-        "GitHub Repository": "https://github.com/SandroN/mx_local_dns_app", # Placeholder link
-        "Project Documentation": "https://docs.example.com/mx_local_dns_app" # Placeholder link
+        "GitHub Repository": "https://github.com/SandroNardi/MX_Local_DNS",
+        "Project Documentation": "https://github.com/SandroNardi/MX_Local_DNS"
     },
     "license_name": "MIT License",
     "license_text": """
